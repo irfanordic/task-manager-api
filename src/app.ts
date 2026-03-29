@@ -2,6 +2,7 @@ import express from "express"
 import authRoutes from "./routes/auth.route"
 import {authMiddleware} from "./middleware/auth.middleware"
 import  taskRoutes  from "./routes/task.route"
+import {errorHandler} from "./middleware/error.middleware"
 const app = express()
 
 app.use(express.json())
@@ -18,6 +19,8 @@ app.get("/", (req, res)=>{
     res.send("The app is Running")
 })
 
+
+app.use(errorHandler)
 
 
 export default app

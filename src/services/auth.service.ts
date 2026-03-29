@@ -1,6 +1,8 @@
 import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import AppError from "../utils/AppError";
+
 
 
 interface SignupInput{
@@ -15,7 +17,7 @@ export const signupUser = async({name, email, password}: SignupInput) => {
     })
 
     if (existingUser){
-        throw new Error("user already Exists")
+        throw new AppError("user already Exists", 400)
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -36,13 +38,13 @@ export const loginUser = async(email:string, password:string)=>{
     })
 
     if(!user){
-        throw new Error("invalid usernamme or email")
+        throw new AppError("Invalid username or email", 401)
     }
 
     const isMatch = await bcrypt.compare(password, user.password)
 
     if(!isMatch){
-        throw new Error("invalid password")
+        throw new AppError("invalid password", 401)
     }
 
     const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET as string, {expiresIn : "1d"})
