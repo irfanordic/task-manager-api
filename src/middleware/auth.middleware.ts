@@ -18,6 +18,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
         ;(req as any).user = decoded
 
+            console.log("Token:", token)
+
+
              next() 
     }catch(error){
         res.status(401).json({

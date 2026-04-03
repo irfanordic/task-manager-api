@@ -10,9 +10,12 @@ export const create = async(req: Request, res: Response)=>{
 }
 
 export const list = async(req: Request, res: Response)=>{
-    const userId = (req as any).user.userId
+    const user = (req as any).user
+    const page = parseInt(req.query.page as string)|| 1
+    const limit = parseInt(req.query.limit as string)|| 5
+    const status = req.query.status as string
 
-    const tasks = await getTasks(userId)
+    const tasks = await getTasks(user.userId, page, limit, status? status : undefined, user.role)
     res.json(tasks)
 }
 
@@ -30,8 +33,8 @@ export const update = async(req:Request, res: Response)=>{
 
 export const remove = async(req:Request, res: Response)=>{
     const taskId = Number(req.params.id)
-    const userId = (req as any).user.userId
+    const user = (req as any).user
 
-    const task  = await deleteTask(taskId, userId)
+    const task  = await deleteTask(taskId, user.userId, user.role)
     res.json(task)
 }

@@ -47,7 +47,9 @@ export const loginUser = async(email:string, password:string)=>{
         throw new AppError("invalid password", 401)
     }
 
-    const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET as string, {expiresIn : "1d"})
+    const token = jwt.sign({userId : user.id, role: user.role},
+         process.env.JWT_SECRET as string,
+          {expiresIn : "1d"})
 
     return  {token , user}
 }

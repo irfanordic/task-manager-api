@@ -10,12 +10,35 @@ export const createTask = async(title: string, userId: number)=>{
     return task
 }
 
-export const getTasks = async(userId: number)=>{
-    return prisma.task.findMany({
-        where:{
-            userId
-        }
-    })
+export const getTasks = async(userId: number, page: number, limit: number, status?: string ,role?: string)=>{
+
+    const where : any = {}
+
+    if(role !== "ADMIN"){
+       where.userId = userId
+    }
+
+    const skip = (page - 1 ) * limit
+   
+    if (status){
+        where.completed = status === 'completed'
+    }
+
+    const tasks = await prisma.task.findMany({
+        where,
+        skip,
+        take:limit,
+        orderBy:{
+        createdAt: 'desc'
+    }    })
+
+    const total = await prisma.task.count({ where })
+    return {
+        tasks,
+        total,
+        page,
+        limit
+    }
 }
 
 export const updateTask = async(
@@ -39,14 +62,22 @@ export const updateTask = async(
 }
 
 
-export const deleteTask = async(taskId: number, userId: number)=>{
-    const task = await prisma.task.deleteMany({
+export const deleteTask = async(taskId: number, userId: number, role: string)=>{
+
+     if(role==="ADMIN"){
+        return await prisma.task.delete({
+          where:{ id: taskId }
+        })
+     }
+
+
+   return await prisma.task.deleteMany({
         where:{
            id:  taskId,
             userId
         }
     })
 
-    return task
+    
 }
 
