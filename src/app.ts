@@ -3,11 +3,14 @@ import authRoutes from "./routes/auth.route"
 import {authMiddleware} from "./middleware/auth.middleware"
 import  taskRoutes  from "./routes/task.route"
 import {errorHandler} from "./middleware/error.middleware"
+import { Limiter } from "./middleware/rateLimiter"
+import {requestLogger} from "./middleware/requestLogger"
 const app = express()
 
 app.use(express.json())
+app.use(requestLogger)
 app.use("/auth", authRoutes)
-app.use('/tasks', taskRoutes)
+app.use('/tasks',Limiter, taskRoutes)
 
 app.get("/profile", authMiddleware, (req:any, res) => {
   res.json({

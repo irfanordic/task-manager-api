@@ -2,6 +2,7 @@ import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/AppError";
+import  logger  from "../utils/logger";
 
 
 
@@ -18,6 +19,7 @@ export const signupUser = async({name, email, password}: SignupInput) => {
 
     if (existingUser){
         throw new AppError("user already Exists", 400)
+      
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -28,7 +30,7 @@ export const signupUser = async({name, email, password}: SignupInput) => {
               password: hashedPassword
              }
     })
-
+    logger.info(`New userr registered: ${name} email:${email}`)
     return user
 }
 
@@ -38,12 +40,14 @@ export const loginUser = async(email:string, password:string)=>{
     })
 
     if(!user){
+       
         throw new AppError("Invalid username or email", 401)
     }
 
     const isMatch = await bcrypt.compare(password, user.password)
 
     if(!isMatch){
+        logger.warn(`Login attempt with invalid password for email: ${email}`)
         throw new AppError("invalid password", 401)
     }
 
@@ -51,5 +55,6 @@ export const loginUser = async(email:string, password:string)=>{
          process.env.JWT_SECRET as string,
           {expiresIn : "1d"})
 
+    logger.info(`User logged in: ${user.name} email: ${user.email}`)
     return  {token , user}
 }
