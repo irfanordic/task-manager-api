@@ -1,5 +1,13 @@
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
-const redis = new Redis()
+const redis = new Redis(process.env.REDIS_URL as string);
 
-export default redis 
+redis.on("connect", () => {
+  console.log("🟢 Redis connected");
+});
+
+redis.on("error", (err) => {
+  console.error("🔴 Redis error:", err.message);
+});
+
+export default redis;
